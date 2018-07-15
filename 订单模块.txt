@@ -1,0 +1,169 @@
+*** Settings ***
+Suite Setup       setup    order_item
+Suite Teardown    teardown
+Test Setup        case-setup
+Test Teardown     case-teardown
+Library           SeleniumLibrary
+Library           OperatingSystem
+Library           DatabaseLibrary
+Resource          mtres.txt
+Library           AutoItLibrary
+Library           DebugLibrary
+Variables         lib/vars.py
+
+*** Test Cases ***
+Case-01
+    [Documentation]    xxx购物车主要功能
+    [Tags]    high
+    ${x}    Row Count    select * from scott.order_item where name='ipad' and quantity=123;
+    ${y}    Evaluate    str($x+1)
+    log    2，点击自动化测试课程
+    Comment    Click Element    link=自动化测试课程    #link定位符
+    Comment    Click Element    partial link=接口    #parital link定位符
+    Click Link    自动化测试课程
+    log    3，输入产品名称及数量
+    Wait Until Element Is Visible    id=pay    #显示等待从服务器下载数据，等最后一个元素下载完成
+    Debug
+    Input Text    id=ProductName    ipad
+    Input Text    name=Quantity    123
+    log    4，点击提交
+    Click Element    id=submitBtn
+    log    5，确认提交成功
+    log    5.1，确认前端提示信息正确
+    Wait Until Page Contains    你购买了ipad，一共123件。    #等待后台处理15S，检查提示信息，15S以内都有用
+    Page Should Contain    你购买了ipad，一共123件。    #检查方法1
+    ${x}    Get Text    id=msg    #检查方法2
+    Should Be Equal    ${x}    你购买了ipad，一共123件。
+    log    5.2，确认前段购物车信息正确
+    Select Frame    fra
+    Select From List By Label    buy    产品:ipad,数量:123    #处理select下拉列表
+    log    5.3，确认后台数据库订单表信息正确
+    Comment    comment    PAUSE    #打断点，脚本运行到此停止运行
+    Wait Until Keyword Succeeds    30    1    Check If Exists In Database    select * from scott.order_item where name='ipad' and quantity=123;    #显示等待数据库处理成功
+    Check If Exists In Database    select * from scott.order_item where name='ipad' and quantity=123;    #执行sql，确认至少有一行数据
+    Row Count Is Equal To X    select * from scott.order_item where name='ipad' and quantity=123;    ${y}    #执行sql，确定有且只有一行数据
+    log    6，点击付款
+    Unselect Frame    #退出frame
+    Click Button    付款
+    Handle Alert    ACCEPT    #处理Alert弹框
+    log    7,切换到付款窗口
+    sleep    3    #强制等待3S
+    ${x}    Get Window Handles
+    Select Window    付款    #选择titles是付款的window
+    Comment    Select Window    ${x[-1]}    #选择没有title的窗口
+    log    8，输入银行卡号完成付款
+    Select From List By Label    bank    建设银行    #处理下拉框选择银行
+    Input Text    cardno    11111111
+    Click Button    payfor
+    Handle Alert    ACCEPT    #Alert框处理
+    Execute Sql String    DELETE FROM order_item where name='ipad' and quantity=123;
+
+Case-02
+    [Documentation]    xxx购物车主要功能
+    [Tags]    high
+    Click Element    css=body > div.container > div.masthead > div > div > div > ul > li.active > a    #css选择器定位符
+    Click Link    自动化测试课程
+    log    3，输入产品名称及数量
+    Input Text    css=#ProductName    ipad
+    Input Text    xpath=//*[@id="Quantity"]    123
+    log    4，点击提交
+    Click Element    id=submitBtn
+    log    5，确认提交成功
+    log    5.1，确认前端提示信息正确
+    Page Should Contain    你购买了ipad，一共123件。    #检查方法1
+    ${x}    Get Text    id=msg    #检查方法2
+    Should Be Equal    ${x}    你购买了ipad，一共123件。
+    log    ${xx}
+    Comment    Click Element    datepicker    #日期控件
+    Comment    Click Element    xpath=//*[@id="ui-datepicker-div"]/table/tbody/tr[2]/td[4]/a
+    Execute Javascript    document.getElementById('datepicker').readOnly=false    #执行js，让控件变为太可输状态
+    Input Text    datepicker    08/28/2018    #输入日期
+    sleep    5
+
+Case-03
+    [Template]    tpl_order
+    ipad    123
+    苹果    321
+
+Case-04
+    [Documentation]    xxx购物车主要功能
+    [Tags]    high
+    Click Element    css=body > div.container > div.masthead > div > div > div > ul > li.active > a    #css选择器定位符
+    Click Link    自动化测试课程
+    log    3，输入产品名称及数量
+    Execute Javascript    $("#ProductName").val("ipad")    #控制浏览器使用js定位
+    Execute Javascript    document.getElementById("Quantity").value="123"
+    log    4，点击提交
+    Click Element    id=submitBtn
+    log    5，确认提交成功
+    log    5.1，确认前端提示信息正确
+    Page Should Contain    你购买了ipad，一共123件。    #检查方法1
+    ${x}    Get Text    id=msg    #检查方法2
+    Should Be Equal    ${x}    你购买了ipad，一共123件。
+    log    ${xx}
+    Comment    Click Element    datepicker    #日期控件
+    Comment    Click Element    xpath=//*[@id="ui-datepicker-div"]/table/tbody/tr[2]/td[4]/a
+    Execute Javascript    document.getElementById('datepicker').readOnly=false    #执行js，让控件变为太可输状态
+    Input Text    datepicker    08/28/2018    #输入日期
+    sleep    5
+
+Case-05
+    log    2，点击自动化测试课程
+    Click Link    自动化测试课程
+    Wait Until Element Is Visible    link=上传下载demo页面
+    Click Link    上传下载demo页面
+    Wait Until Element Is Visible    id=file
+    Click Element    file
+    Win Wait    打开    \    20
+    Win Activate    打开
+    Control Set Text    \    \    Edit1    ${CURDIR}${/}mtres.txt    #选择当前路径的mtres文件，
+    Control Click    \    \    Button1
+    sleep    3
+
+Case-06
+    Click Element    css=body > div.container > div.masthead > div > div > div > ul > li.active > a    #css选择器定位符
+    Click Element    jquery=a:contains('自动化')    #jquery选择器
+    log    3，输入产品名称及数量
+    Wait Until Element Is Visible    id=pay    30
+    Input Text    jquery=#ProductName    ipad    #jquery选择器
+    Input Text    jquery=[id="Quantity"]    123    #jquery选择器    #jquery=#Quantity
+    log    4，点击提交
+    Click Element    id=submitBtn
+    log    5，确认提交成功
+    log    5.1，确认前端提示信息正确
+    Page Should Contain    你购买了ipad，一共123件。    #检查方法1
+    ${x}    Get Text    id=msg    #检查方法2
+    Should Be Equal    ${x}    你购买了ipad，一共123件。
+    log    ${xx}
+    Comment    Click Element    datepicker    #日期控件
+    Comment    Click Element    xpath=//*[@id="ui-datepicker-div"]/table/tbody/tr[2]/td[4]/a
+    Execute Javascript    document.getElementById('datepicker').readOnly=false    #执行js，让控件变为太可输状态
+    Input Text    datepicker    08/28/2018    #输入日期
+    sleep    5
+
+Case-07
+    [Template]    tpl_order
+    :FOR    ${i}    in    @{DATA_ORDER_CASE_03}
+    \    ${i[0]}    ${i[1]}
+
+*** Keywords ***
+case-setup
+    Comment    Execute Sql String    DELETE FROM order_item;
+
+case-teardown
+    Select Window
+
+tpl_order
+    [Arguments]    ${pname}    ${quan}
+    Click Element    css=body > div.container > div.masthead > div > div > div > ul > li.active > a    #css选择器定位符
+    Click Link    自动化测试课程
+    log    3，输入产品名称及数量
+    Input Text    id=ProductName    ${pname}
+    Input Text    name=Quantity    ${quan}
+    log    4，点击提交
+    Click Element    id=submitBtn
+    log    5，确认提交成功
+    log    5.1，确认前端提示信息正确
+    Page Should Contain    你购买了${pname}，一共${quan}件。    #检查方法1
+    ${x}    Get Text    id=msg    #检查方法2
+    Should Be Equal    ${x}    你购买了${pname}，一共${quan}件。

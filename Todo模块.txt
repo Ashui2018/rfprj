@@ -1,0 +1,5 @@
+*** Settings ***
+Resource          mtres.txt
+
+*** Test Cases ***
+Case-01

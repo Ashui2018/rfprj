@@ -1,0 +1,20 @@
+*** Variables ***
+${IP}             192.168.114.128
+
+*** Keywords ***
+setup
+    [Arguments]    ${table_name}
+    log    预置条件
+    Connect To Database    pymysql    scott    tester    passwd    ${IP}    3306
+    ...    utf8
+    OperatingSystem.run    taskkill /f /im chromedriver.exe    #杀残留的driver进程
+    Execute Sql String    DELETE FROM ${table_name};    #执行sql，清理脏数据
+    log    1，打开网站
+    Open Browser    http://${IP}/mt    chrome
+    Set Global Variable    ${xx}    aabb    #跨测试用例传递变量
+    Set Selenium Implicit Wait    0    #隐式等待时间，控制浏览器在定位失败时返回响应时间
+
+teardown
+    log    恢复环境
+    Disconnect From Database    #关闭连接数据库，释放资源
+    Close Browser
