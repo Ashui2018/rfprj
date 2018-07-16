@@ -23,7 +23,6 @@ Case-01
     Click Link    自动化测试课程
     log    3，输入产品名称及数量
     Wait Until Element Is Visible    id=pay    #显示等待从服务器下载数据，等最后一个元素下载完成
-    Debug
     Input Text    id=ProductName    ipad
     Input Text    name=Quantity    123
     log    4，点击提交
@@ -143,7 +142,7 @@ Case-06
 
 Case-07
     [Template]    tpl_order
-    :FOR    ${i}    in    @{DATA_ORDER_CASE_03}
+    : FOR    ${i}    IN    @{DATA_ORDER_CASE_03}
     \    ${i[0]}    ${i[1]}
 
 *** Keywords ***

@@ -1,5 +1,10 @@
+*** Settings ***
+Library           DatabaseLibrary
+Library           OperatingSystem
+Library           SeleniumLibrary
+
 *** Variables ***
-${IP}             192.168.114.128
+${IP}             192.168.26.134
 
 *** Keywords ***
 setup
